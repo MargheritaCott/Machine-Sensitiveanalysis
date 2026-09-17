@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+retrained_model/
+monitoring_log.csv
+.env
+*.egg-info/
+.DS_Store
+venv/
