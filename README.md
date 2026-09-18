@@ -30,8 +30,6 @@ repo/
 │   └── ci-cd.yml            # Pipeline CI/CD (test, build, deploy su HF Hub)
 ├── data/
 │   └── README.md            # Note sul dataset pubblico utilizzato
-├── notebooks/
-│   └── MachineInnovators_Sentiment_Colab.ipynb   # Notebook di consegna
 ├── requirements.txt
 └── README.md
 ```
@@ -83,7 +81,7 @@ branch `main` ed esegue:
 
 ## 6. Risultati
 
-Il notebook di consegna (`notebooks/MachineInnovators_Sentiment_Colab.ipynb`)
+Il notebook di consegna (`https://colab.research.google.com/drive/1gSPyNzd0Rhfa28qoCNsBv509RhVbddYn?usp=sharing`)
 riporta:
 - esempi di inferenza su testi tipici da social media,
 - metriche di valutazione del modello pre-addestrato sul dataset `tweet_eval`
@@ -95,7 +93,7 @@ riporta:
 ## 7. Come eseguire il progetto
 
 ```bash
-git clone <URL_DELLA_TUA_REPO>
+git clone https://github.com/MargheritaCott/Machine-Sensitiveanalysis
 cd repo
 pip install -r requirements.txt
 
@@ -109,9 +107,4 @@ python -m src.evaluate
 python -m src.monitor
 ```
 
-## 8. Note
 
-- Il deploy su Hugging Face è **facoltativo**: la pipeline lo esegue solo se
-  è presente il secret `HF_TOKEN`.
-- Sostituire `<URL_DELLA_TUA_REPO>` con l'URL reale dopo aver pubblicato la
-  repository su GitHub.

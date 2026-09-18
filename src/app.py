@@ -1,6 +1,4 @@
 """
-App Gradio per il deploy (facoltativo) del modello su Hugging Face Spaces.
-
 Uso locale:
     python -m src.app
 """
