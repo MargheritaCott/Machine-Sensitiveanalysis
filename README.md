@@ -18,7 +18,7 @@ testi social in **positivo / neutro / negativo**, con:
 ## 2. Architettura del progetto
 
 ```
-repo/
+
 ├── src/
 │   ├── sentiment_model.py   # Wrapper del modello pre-addestrato (inferenza)
 │   ├── train.py             # Script di training / retraining
