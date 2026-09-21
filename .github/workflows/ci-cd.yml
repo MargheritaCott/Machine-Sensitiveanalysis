@@ -89,4 +89,4 @@ jobs:
 
       - name: Skip deploy (nessun HF_TOKEN configurato)
         if: env.HF_TOKEN == ''
-        run: echo "HF_TOKEN non configurato: deploy facoltativo saltato."
+        run: 'echo "HF_TOKEN non configurato: deploy facoltativo saltato."'

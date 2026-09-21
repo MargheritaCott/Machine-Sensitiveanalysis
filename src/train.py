@@ -36,7 +36,8 @@ def load_training_data(data_path: str | None):
 
         df = pd.read_csv(data_path)
         return Dataset.from_pandas(df)
-    ds = load_dataset("tweet_eval", "sentiment")
+    # Vedi nota in src/evaluate.py: il dataset ora vive sotto il namespace cardiffnlp.
+    ds = load_dataset("cardiffnlp/tweet_eval", "sentiment")
     return ds["train"], ds["validation"]
 
 
@@ -51,8 +52,10 @@ def compute_metrics(eval_pred):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data_path", type=str, default=None,
-                         help="CSV opzionale (text,label) per retraining su nuovi dati")
+    parser.add_argument(
+        "--data_path", type=str, default=None,
+        help="CSV opzionale (text,label) per retraining su nuovi dati",
+    )
     parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--output_dir", type=str, default="./retrained_model")

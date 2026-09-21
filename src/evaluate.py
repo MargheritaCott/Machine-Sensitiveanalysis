@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 
-import numpy as np
 from datasets import load_dataset
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
@@ -23,11 +22,16 @@ MODEL_LABELS = ["negative", "neutral", "positive"]
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--split", type=str, default="validation")
-    parser.add_argument("--n_samples", type=int, default=300,
-                         help="Numero di esempi da valutare (per velocità in demo)")
+    parser.add_argument(
+        "--n_samples", type=int, default=300,
+        help="Numero di esempi da valutare (per velocità in demo)",
+    )
     args = parser.parse_args()
 
-    ds = load_dataset("tweet_eval", "sentiment")[args.split]
+    # Il dataset "tweet_eval" senza namespace non è più caricabile: HF ha
+    # rimosso il loading script dal repo legacy, il dataset ora vive sotto
+    # il namespace cardiffnlp (vedi https://huggingface.co/datasets/cardiffnlp/tweet_eval).
+    ds = load_dataset("cardiffnlp/tweet_eval", "sentiment")[args.split]
     if args.n_samples:
         ds = ds.select(range(min(args.n_samples, len(ds))))
 

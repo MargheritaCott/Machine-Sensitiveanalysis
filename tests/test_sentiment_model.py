@@ -1,5 +1,11 @@
 """
 Test unitari e di integrazione usati dalla pipeline CI/CD.
+
+NB: i testi di esempio sono in inglese perché
+cardiffnlp/twitter-roberta-base-sentiment-latest è addestrato esclusivamente
+su tweet in inglese. Con testo in italiano il modello collassa quasi sempre
+su "neutral" indipendentemente dal contenuto, il che farebbe fallire questi
+test per un motivo linguistico e non per un problema del codice.
 """
 
 import pytest
@@ -15,7 +21,7 @@ def analyzer():
 
 
 def test_predict_returns_valid_schema(analyzer):
-    results = analyzer.predict(["Adoro questo prodotto!"])
+    results = analyzer.predict(["I love this product!"])
     assert len(results) == 1
     assert isinstance(results[0], SentimentResult)
     assert results[0].label in VALID_LABELS
@@ -24,9 +30,9 @@ def test_predict_returns_valid_schema(analyzer):
 
 def test_predict_batch(analyzer):
     texts = [
-        "Sono molto soddisfatto del servizio",
-        "Esperienza pessima, non consiglio",
-        "Ok, niente di particolare",
+        "I'm very happy with the service",
+        "Terrible experience, I do not recommend it",
+        "It's fine, nothing special",
     ]
     results = analyzer.predict(texts)
     assert len(results) == len(texts)
@@ -35,12 +41,12 @@ def test_predict_batch(analyzer):
 
 
 def test_positive_example_classified_correctly(analyzer):
-    result = analyzer.predict(["Servizio eccellente, staff gentilissimo, consigliatissimo!"])[0]
+    result = analyzer.predict(["Excellent service, super friendly staff, highly recommended!"])[0]
     assert result.label == "positive"
 
 
 def test_negative_example_classified_correctly(analyzer):
-    result = analyzer.predict(["Pessimo servizio, prodotto rotto, non lo consiglio a nessuno"])[0]
+    result = analyzer.predict(["Terrible service, the product arrived broken, I do not recommend it to anyone"])[0]
     assert result.label == "negative"
 
 

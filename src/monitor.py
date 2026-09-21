@@ -24,8 +24,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
 
-import numpy as np
-
 from src.sentiment_model import SentimentAnalyzer
 
 LOG_PATH = Path("./monitoring_log.csv")
@@ -66,15 +64,40 @@ def log_snapshot(snapshot: MonitoringSnapshot):
         writer.writerow(snapshot.__dict__)
 
 
-def trigger_retraining():
+def trigger_retraining(data_path: str = "data/new_labeled_data.csv", dry_run: bool = False):
+    """Avvia il retraining del modello (src/train.py) sui nuovi dati etichettati.
+
+    dry_run=True (default nella demo di questo modulo se non diversamente
+    specificato dal chiamante) stampa il comando senza eseguirlo, utile per
+    non lanciare un training reale da una semplice demo locale; in un
+    ambiente di produzione/CI va invocato con dry_run=False.
+    """
     print(">>> Drift rilevato oltre soglia: avvio retraining automatico...")
-    # In produzione: subprocess.run(["python", "-m", "src.train", "--data_path", "data/new_labeled_data.csv"])
-    print(">>> (demo) retraining simulato completato.")
+    cmd = ["python", "-m", "src.train", "--data_path", data_path, "--epochs", "1"]
+    if dry_run:
+        print(f">>> (dry run) comando che verrebbe eseguito: {' '.join(cmd)}")
+        return
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(">>> Retraining fallito:")
+        print(result.stderr)
+    else:
+        print(">>> Retraining completato con successo.")
+        print(result.stdout)
 
 
-def run_monitoring_cycle(batches: List[List[str]], baseline_distribution: dict | None = None):
+def run_monitoring_cycle(
+    batches: List[List[str]],
+    baseline_distribution: dict | None = None,
+    retrain_dry_run: bool = True,
+):
     """Esegue il monitoraggio su una sequenza di batch di post social,
-    simulando l'arrivo di dati nel tempo."""
+    simulando l'arrivo di dati nel tempo.
+
+    retrain_dry_run=True (default) stampa il comando di retraining senza
+    eseguirlo realmente: utile in demo locali dove data/new_labeled_data.csv
+    non esiste ancora. In produzione/CI va passato retrain_dry_run=False.
+    """
     analyzer = SentimentAnalyzer()
     baseline = baseline_distribution
     now = datetime.utcnow()
@@ -104,22 +127,31 @@ def run_monitoring_cycle(batches: List[List[str]], baseline_distribution: dict |
         print(snapshot)
 
         if retrain:
-            trigger_retraining()
+            trigger_retraining(dry_run=retrain_dry_run)
             baseline = dist  # dopo il retraining, la nuova distribuzione diventa la baseline
 
 
 if __name__ == "__main__":
     # Esempio dimostrativo: 4 batch di post social simulati nel tempo,
-    # con un evento negativo improvviso nel batch 3 per mostrare il drift detection.
+    # con un evento negativo improvviso nel batch 3 per mostrare il drift
+    # detection. NOTA: il modello cardiffnlp/twitter-roberta-base-sentiment-
+    # latest è addestrato su tweet in INGLESE; testi in italiano collassano
+    # quasi sempre su "neutral" e la demo non mostrerebbe alcun drift. I post
+    # sono quindi in inglese per riflettere realisticamente il comportamento
+    # del modello (in produzione, su testi in italiano, andrebbe usato un
+    # modello multilingue, es. cardiffnlp/twitter-xlm-roberta-base-sentiment).
     demo_batches = [
-        ["Adoro questo prodotto!", "Ottimo servizio clienti", "Consegna puntuale come sempre",
-         "Niente di che ma va bene", "Prodotto nella media"],
-        ["Il supporto è stato gentile", "Buona qualità costruttiva", "App un po' lenta ma utile",
-         "Prezzo giusto", "Consiglierei ad un amico"],
-        ["Servizio pessimo, ho aspettato ore", "Prodotto rotto all'arrivo", "Mai più un acquisto qui",
-         "Assistenza clienti inesistente", "Delusione totale, sconsigliato"],
-        ["Servizio pessimo di nuovo", "Ancora problemi con la spedizione", "App si blocca sempre",
-         "Rimborso mai arrivato", "Esperienza negativa"],
+        ["I love this product!", "Great customer service", "Delivery was on time as always",
+         "Nothing special but it's fine", "Average product, does the job"],
+        ["Support staff was very kind", "Good build quality", "App is a bit slow but useful",
+         "Fair price for what you get", "Would recommend it to a friend"],
+        ["Terrible service, waited for hours", "Product arrived broken", "Never buying from here again",
+         "Customer support is nonexistent", "Total disappointment, do not recommend"],
+        ["Terrible service again", "Still having shipping problems", "App keeps crashing constantly",
+         "Refund never arrived", "Overall a really negative experience"],
     ]
-    run_monitoring_cycle(demo_batches)
+    # dry_run=True: nella demo locale non è presente data/new_labeled_data.csv,
+    # quindi il retraining viene solo mostrato, non eseguito realmente.
+    # In CI/produzione, con dati etichettati disponibili, impostare False.
+    run_monitoring_cycle(demo_batches, retrain_dry_run=True)
     print(f"\nLog di monitoraggio salvato in: {LOG_PATH.resolve()}")

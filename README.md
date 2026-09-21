@@ -18,7 +18,7 @@ testi social in **positivo / neutro / negativo**, con:
 ## 2. Architettura del progetto
 
 ```
-
+repo/
 ├── src/
 │   ├── sentiment_model.py   # Wrapper del modello pre-addestrato (inferenza)
 │   ├── train.py             # Script di training / retraining
@@ -30,6 +30,8 @@ testi social in **positivo / neutro / negativo**, con:
 │   └── ci-cd.yml            # Pipeline CI/CD (test, build, deploy su HF Hub)
 ├── data/
 │   └── README.md            # Note sul dataset pubblico utilizzato
+├── notebooks/
+│   └── MachineInnovators_Sentiment_Colab.ipynb   # Notebook di consegna
 ├── requirements.txt
 └── README.md
 ```
@@ -81,7 +83,7 @@ branch `main` ed esegue:
 
 ## 6. Risultati
 
-Il notebook di consegna (`https://colab.research.google.com/drive/1gSPyNzd0Rhfa28qoCNsBv509RhVbddYn?usp=sharing`)
+Il notebook di consegna (`notebooks/MachineInnovators_Sentiment_Colab.ipynb`)
 riporta:
 - esempi di inferenza su testi tipici da social media,
 - metriche di valutazione del modello pre-addestrato sul dataset `tweet_eval`
